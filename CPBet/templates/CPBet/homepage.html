@@ -1,12 +1,11 @@
 <h1>CopyPasteBet</h1>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
-<form action="{% url 'confirm' %}" method="post">
+<form action="/cpbet/confirm/" method="post">
 {% csrf_token %}
 
    <p>Insert the copy-pasted text:</p>
    <p>Bet: <input type="text" name="Bet"/>
-   <input type="hidden" value={{ token }}>
+   <input type="hidden" value ="{{ Token }}" name ="Token">
    <input type="submit" value="Save Bet" />
 </form>

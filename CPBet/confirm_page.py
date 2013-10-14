@@ -1,11 +1,12 @@
 __author__ = 'tippytip'
 #StdLib imports
+import json
+import tokenlib
 import re
-
 # Core Django imports
+from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-
 # Third-party app imports
 
 # Constants by convention
@@ -21,17 +22,17 @@ ARG_BET_DATE = "BetDate"
 ARG_BET_TYPE = "BetType"
 ARG_BET_RESULT = "BetResult"
 ARG_DICTIONARY = "Dictionary"
-POST_BET_365 = "Bet365"
-POST_MARATHON_BET = "MarathonBet"
-POST_PINNACLE_SPORTS = "PinnacleSports"
-POST_WILLIAM_HILL = "WilliamHill"
+POST_BET = "Bet"
+POST_TOKEN = "Token"
 ID_BET365 = 0
 ID_MARATHON_BET = 1
 ID_PINNACLE_SPORTS = 2
 ID_WILLIAM_HILL = 3
 REGEX_PINNACLE_ODDS_SURROUND = re.compile(r".+\d+\.\d\d\d\s[ADF].+")
 REGEX_PINNACLE_ODDS = re.compile(r"\d+\.\d\d\d\s[ADF]")
-
+SECRET = "CopyPasteBet"
+STATUS_TOKEN_PARSING_ERROR = 460
+ERR_PARSE_TOKEN = "Error parsing the token"
 
 # when we copy the date from other websites the dates come from other world regions
 # pending and settled
@@ -51,35 +52,42 @@ DUMMY_BET = {
 
 
 def confirm(request):
-    dummies = list()
-    dummies.append(request.POST.get(POST_BET_365))
-    dummies.append(request.POST.get(POST_MARATHON_BET))
-    dummies.append(request.POST.get(POST_PINNACLE_SPORTS))
-    dummies.append(request.POST.get(POST_WILLIAM_HILL))
-    printTabbedArrays(dummies)
+    unprocessedString = request.POST.get(POST_BET)
+    token = request.POST.get(POST_TOKEN)
+    print token
+    if type(token) == unicode:
+        print "token is unicode"
+    # encode() without parameters transforms it to String
+        token = token.encode()
+    try:
+        data = tokenlib.parse_token(token, secret=SECRET)
+        print data
+    except:
+        return HttpResponse(json.dumps({"Status": STATUS_TOKEN_PARSING_ERROR,
+                                        "Error": ERR_PARSE_TOKEN}, sort_keys=True))
+    printTabbedArrays(unprocessedString)
     # printDateArrays(dummies)
-# process the Bet
     return render_to_response('CPBet/confirm.html', DUMMY_BET, context_instance=RequestContext(request))
 
 
 def identifyPinnacle(unprocessedString):
+
     return REGEX_PINNACLE_ODDS.findall(unprocessedString,)
 
 
 # Helpers functions -----------------------------------
-def printTabbedArrays(dummies):
-    for d in dummies:
-    # check if it has Pinnacle odds style
-        pinnacleOdds = identifyPinnacle(d)
-        if len(pinnacleOdds) == 0:
-            print ">>>> None"
-        else:
-            for p in pinnacleOdds:
-                print p.encode()
+def printTabbedArrays(d):
+# check if it has Pinnacle odds style
+    pinnacleOdds = identifyPinnacle(d)
+    if len(pinnacleOdds) == 0:
+        print ">>>> None"
+    else:
+        for p in pinnacleOdds:
+            print p.encode()
     # print split parts!!
-        splitArray = d.split("\t")
-        for s in splitArray:
-            print s
+    splitArray = d.split("\t")
+    for s in splitArray:
+        print s
 
 
 def printDateArrays(dummy):

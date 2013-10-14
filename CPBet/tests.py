@@ -1,5 +1,5 @@
 from django.test import TestCase, RequestFactory
-from .confirm import confirm
+from .confirm_page import confirm
 
 
 # Constants by convention
