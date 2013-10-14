@@ -1,3 +1,5 @@
+
+
 __author__ = 'tippytip'
 #StdLib imports
 import json
@@ -7,6 +9,7 @@ import re
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.contrib.auth.models import User
 # Third-party app imports
 
 # Constants by convention
@@ -62,32 +65,33 @@ def confirm(request):
     try:
         data = tokenlib.parse_token(token, secret=SECRET)
         print data
+        # here we make up the restaurant data
+        key = unicode("userid")
+        print data[key]
+
     except:
         return HttpResponse(json.dumps({"Status": STATUS_TOKEN_PARSING_ERROR,
                                         "Error": ERR_PARSE_TOKEN}, sort_keys=True))
-    printTabbedArrays(unprocessedString)
+    tabArray = printTabbedArrays(unprocessedString)
+    if len(tabArray) == 1:
+    # MarathonBet doesn't contain tabs
+        picture = ID_MARATHON_BET
     # printDateArrays(dummies)
     return render_to_response('CPBet/confirm.html', DUMMY_BET, context_instance=RequestContext(request))
 
 
 def identifyPinnacle(unprocessedString):
-
     return REGEX_PINNACLE_ODDS.findall(unprocessedString,)
 
-
 # Helpers functions -----------------------------------
+
+
 def printTabbedArrays(d):
-# check if it has Pinnacle odds style
-    pinnacleOdds = identifyPinnacle(d)
-    if len(pinnacleOdds) == 0:
-        print ">>>> None"
-    else:
-        for p in pinnacleOdds:
-            print p.encode()
-    # print split parts!!
+# print split parts!!
     splitArray = d.split("\t")
     for s in splitArray:
         print s
+    return splitArray
 
 
 def printDateArrays(dummy):
@@ -104,8 +108,13 @@ def hasDate(string):
     return False
 
 
-
-
+# check if it has Pinnacle odds style
+# pinnacleOdds = identifyPinnacle(d)
+#     if len(pinnacleOdds) == 0:
+#         print ">>>> None"
+#     else:
+#         for p in pinnacleOdds:
+#             print p.encode()
 
 
 

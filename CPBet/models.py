@@ -31,3 +31,9 @@ class english_premier_league_results(models.Model):
     home_team = models.CharField(max_length=25)
     away_team = models.CharField(max_length=25)
     result = models.CharField(max_length=3)
+
+
+class bookmakers(models.Model):
+    bookmaker_id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=25)
+    image = models.ImageField(upload_to="/images")
