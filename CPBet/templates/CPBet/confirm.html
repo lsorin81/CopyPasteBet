@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CopyPasteBet</title>
+</head>
+<body>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+    <table>
+    <tr>
+        <td>EventDescription</td>
+        <td>EventDate</td>
+        <td>EventResult</td>
+        <td>BetDescription</td>
+        <td>BetCode</td>
+        <td>BetBookmaker</td>
+        <td>BetOdds</td>
+        <td>BetAmount</td>
+        <td>BetDate</td>
+        <td>BetType</td>
+        <td>BetResult</td>
+    </tr>
+    <tr>
+        <td>{{ EventDescription }}</td>
+        <td>{{ EventDate }}</td>
+        <td>{{ EventResult }}</td>
+        <td>{{ BetDescription }}</td>
+        <td>{{ BetCode }}</td>
+        <td>{{ BetBookmaker }}</td>
+        <td>{{ BetOdds }}</td>
+        <td>{{ BetAmount }}</td>
+        <td>{{ BetDate }}</td>
+        <td>{{ BetType}}</td>
+        <td>{{ BetResult}}</td>
+
+    </tr>
+    </table>
+</body>
+</html>
