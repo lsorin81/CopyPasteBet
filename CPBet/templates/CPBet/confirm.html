@@ -8,12 +8,12 @@
 
     <table>
     <tr>
+        <td>BetBookmaker</td>
         <td>EventDescription</td>
         <td>EventDate</td>
         <td>EventResult</td>
         <td>BetDescription</td>
         <td>BetCode</td>
-        <td>BetBookmaker</td>
         <td>BetOdds</td>
         <td>BetAmount</td>
         <td>BetDate</td>
@@ -21,12 +21,13 @@
         <td>BetResult</td>
     </tr>
     <tr>
+        {% load staticfiles %}
+        <td>{% block content %}<img src="{% static BookmakerPicture %}"/>{% endblock %}</td>
         <td>{{ EventDescription }}</td>
         <td>{{ EventDate }}</td>
         <td>{{ EventResult }}</td>
         <td>{{ BetDescription }}</td>
         <td>{{ BetCode }}</td>
-        <td>{{ BetBookmaker }}</td>
         <td>{{ BetOdds }}</td>
         <td>{{ BetAmount }}</td>
         <td>{{ BetDate }}</td>

@@ -3,8 +3,10 @@
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 <form action="/cpbet/confirm/" method="post">
 {% csrf_token %}
+    <!--
    {% load staticfiles %}
    <p><img border="0" alt="Profile Pic" src="{% static "images/bet365.jpg" %}" /></p>
+   -->
    <p>Insert the copy-pasted text:</p>
    <p>Bet: <input type="text" name="Bet"/>
    <input type="hidden" value ="{{ Token }}" name ="Token">
