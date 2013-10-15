@@ -1,7 +1,5 @@
 from django.db import models
 
-unprocessedString = "19:30	Sunderland - Manchester United	1:2	7.00	4.53	1.65	29"
-
 
 class bets(models.Model):
 # event based
@@ -33,7 +31,17 @@ class english_premier_league_results(models.Model):
     result = models.CharField(max_length=3)
 
 
+class unique_token_key(models.Model):
+    key_id = models.IntegerField(primary_key=True)
+    key = models.CharField(max_length=5)
+
+
 class bookmakers(models.Model):
     bookmaker_id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=25)
-    image = models.ImageField(upload_to="/images")
+    image = models.ImageField(upload_to="cpbet/static")
+
+
+
+
+

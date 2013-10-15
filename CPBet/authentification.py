@@ -1,5 +1,8 @@
+from CPBet.models import unique_token_key
+
 __author__ = 'tippytip'
 import json
+import random
 import tokenlib
 from django.contrib.auth import authenticate, login
 from django.template import loader, RequestContext
@@ -44,11 +47,18 @@ def register_method(request):
         # we log in and create token
             login(request, user)
             print "User has been authenticated."
-            token = tokenlib.make_token({"userid": user.id}, secret=SECRET)
+        # get or make secret for token
+            if unique_token_key.objects.all().count() == 0:
+                randomString = str(random.randint(0, 32767))
+                secret = randomString
+                uniqueObject = unique_token_key(key_id=1, key=randomString)
+                uniqueObject.save()
+            else:
+                secret = unique_token_key.objects.get(pk=1).key
+            token = tokenlib.make_token({"userid": user.id}, secret=secret)
         template = loader.get_template('CPBet/homepage.html')
         context = RequestContext(request, {TOKEN: token})
         return HttpResponse(template.render(context))
-        # return HttpResponse(json.dumps({"Status": 0, "Token": token}, sort_keys=True))
     else:
         return HttpResponse(json.dumps({"Status": STATUS_NOT_YET,
                                         "Error": "The account has not been created yet."},
@@ -64,8 +74,15 @@ def login_method(request):
     if user is not None:
         if user.is_active:
             login(request, user)
-            print user
-            token = tokenlib.make_token({"userid": user.id}, secret=SECRET)
+        # get or make secret for token
+            if unique_token_key.objects.all().count() == 0:
+                randomString = str(random.randint(0, 32767))
+                secret = randomString
+                uniqueObject = unique_token_key(key_id=1, key=randomString)
+                uniqueObject.save()
+            else:
+                secret = unique_token_key.objects.get(pk=1).key
+            token = tokenlib.make_token({"userid": user.id}, secret=secret)
             template = loader.get_template('CPBet/homepage.html')
             context = RequestContext(request, {TOKEN: token})
             return HttpResponse(template.render(context))

@@ -1,4 +1,4 @@
-
+from CPBet.models import unique_token_key
 
 __author__ = 'tippytip'
 #StdLib imports
@@ -57,18 +57,14 @@ DUMMY_BET = {
 def confirm(request):
     unprocessedString = request.POST.get(POST_BET)
     token = request.POST.get(POST_TOKEN)
-    print token
     if type(token) == unicode:
-        print "token is unicode"
     # encode() without parameters transforms it to String
         token = token.encode()
     try:
-        data = tokenlib.parse_token(token, secret=SECRET)
-        print data
+        secret = unique_token_key.objects.get(pk=1).key
+        data = tokenlib.parse_token(token, secret=secret)
         # here we make up the restaurant data
         key = unicode("userid")
-        print data[key]
-
     except:
         return HttpResponse(json.dumps({"Status": STATUS_TOKEN_PARSING_ERROR,
                                         "Error": ERR_PARSE_TOKEN}, sort_keys=True))
