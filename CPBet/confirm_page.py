@@ -1,4 +1,5 @@
 from CPBet.models import unique_token_key, bookmakers
+from CPBet.views import MarathonClass
 
 __author__ = 'tippytip'
 #StdLib imports
@@ -9,10 +10,21 @@ import re
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.contrib.auth.models import User
 # Third-party app imports
 
 # Constants by convention
+
+POST_BET = "Bet"
+POST_TOKEN = "Token"
+ID_BET365 = 0
+ID_MARATHON_BET = 1
+ID_PINNACLE_SPORTS = 2
+ID_WILLIAM_HILL = 3
+REGEX_PINNACLE_ODDS_SURROUND = re.compile(r".+\d+\.\d\d\d\s[ADF].+")
+REGEX_PINNACLE_ODDS = re.compile(r"\d+\.\d\d\d\s[ADF]")
+SECRET = "CopyPasteBet"
+STATUS_TOKEN_PARSING_ERROR = 460
+ERR_PARSE_TOKEN = "Error parsing the token"
 ARG_EVENT_DESCRIPTION = "EventDescription"
 ARG_EVENT_DATE = "EventDate"
 ARG_EVENT_RESULT = "EventResult"
@@ -26,18 +38,6 @@ ARG_BET_TYPE = "BetType"
 ARG_BET_RESULT = "BetResult"
 ARG_DICTIONARY = "Dictionary"
 ARG_BOOKMAKER_PICTURE = "BookmakerPicture"
-POST_BET = "Bet"
-POST_TOKEN = "Token"
-ID_BET365 = 0
-ID_MARATHON_BET = 1
-ID_PINNACLE_SPORTS = 2
-ID_WILLIAM_HILL = 3
-REGEX_PINNACLE_ODDS_SURROUND = re.compile(r".+\d+\.\d\d\d\s[ADF].+")
-REGEX_PINNACLE_ODDS = re.compile(r"\d+\.\d\d\d\s[ADF]")
-SECRET = "CopyPasteBet"
-STATUS_TOKEN_PARSING_ERROR = 460
-ERR_PARSE_TOKEN = "Error parsing the token"
-STANDARD_MARATHON_NO = 16;
 
 # when we copy the date from other websites the dates come from other world regions
 # pending and settled
@@ -45,24 +45,23 @@ STANDARD_MARATHON_NO = 16;
 
 def confirm(request):
     unprocessedString = request.POST.get(POST_BET)
-    token = request.POST.get(POST_TOKEN)
-    try:
-        if type(token) == unicode:
-        # encode() without parameters transforms it to String
-            token = token.encode()
-        secret = unique_token_key.objects.get(pk=1).key
-        data = tokenlib.parse_token(token, secret=secret)
-        key = unicode("userid")
-    except:
-        return HttpResponse(json.dumps({"Status": STATUS_TOKEN_PARSING_ERROR,
-                                        "Error": ERR_PARSE_TOKEN}, sort_keys=True))
-    tabArray = printTabbedArrays(unprocessedString)
-    if len(tabArray) == 1:
-    # MarathonBet doesn't contain tabs
-        marathonArray = tabArray[0].split(" ")
-        if len(marathonArray) == STANDARD_MARATHON_NO:
+    # token = request.POST.get(POST_TOKEN)
+    # try:
+    #     if type(token) == unicode:
+    #     # encode() without parameters transforms it to String
+    #         token = token.encode()
+    #     secret = unique_token_key.objects.get(pk=1).key
+    #     data = tokenlib.parse_token(token, secret=secret)
+    #     key = unicode("userid")
+    # except:
+    #     return HttpResponse(json.dumps({"Status": STATUS_TOKEN_PARSING_ERROR,
+    #                                     "Error": ERR_PARSE_TOKEN}, sort_keys=True))
+    if len(identifyPinnacle(unprocessedString)) > 0:
+    # PinnacleSports
+        PinnacleArray = printTabbedArrays(unprocessedString)
+        if len(PinnacleArray) == 7:
             betFields = {
-                ARG_BOOKMAKER_PICTURE: stripUrl(bookmakers.objects.get(pk=4).image.url),
+                ARG_BOOKMAKER_PICTURE: stripUrl(bookmakers.objects.get(pk=2).image.url),
                 ARG_EVENT_DESCRIPTION: "Fulham -vs- Stoke City",
                 ARG_EVENT_DATE: "10/5/2013 7:00",
                 ARG_EVENT_RESULT: "FT 1:0",
@@ -77,12 +76,26 @@ def confirm(request):
             return render_to_response('CPBet/confirm.html', betFields, context_instance=RequestContext(request))
         else:
             return HttpResponse(json.dumps({"Status": 400,
-                                            "Error": "Not a proper MarathonBet"},
+                                            "Error": "Not a 7 part PinnacleSports Bet!"},
                                            sort_keys=True))
+    tabArray = printTabbedArrays(unprocessedString)
+    if len(tabArray) == 1:
+    # MarathonBet doesn't contain tabs
+        mc = MarathonClass()
+        betFields = mc.marathon(request=request, stringArray=tabArray)
+        if betFields is None:
+            return HttpResponse(json.dumps({"Status": 400,
+                                            "Error": "Not a full part Marathon Bet!"},
+                                           sort_keys=True))
+        else:
+            return render_to_response('CPBet/confirm.html', betFields,
+                                      context_instance=RequestContext(request))
 
 
 def identifyPinnacle(unprocessedString):
-    return REGEX_PINNACLE_ODDS.findall(unprocessedString,)
+    foundString = REGEX_PINNACLE_ODDS.findall(unprocessedString)
+    return foundString
+
 
 # Helpers functions -----------------------------------
 

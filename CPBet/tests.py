@@ -12,7 +12,7 @@ class ConfirmPage(TestCase):
         self.factory = RequestFactory()
 
     def test_http_response_bet(self):
-        request = self.factory.post('/cpbet/',
+        request = self.factory.post("/cpbet/confirm/",
                                     data={ARG_BET: "dsfsaf", })
         response = confirm(request)
         self.assertContains(response, "7:00")
