@@ -1,10 +1,10 @@
-from CPBet.models import unique_token_key, bookmakers
-from CPBet.views import MarathonClass
+from CPBet.bet_checkers.helpers import stripUrl
+from CPBet.models import bookmaker
+
 
 __author__ = 'tippytip'
 #StdLib imports
 import json
-import tokenlib
 import re
 # Core Django imports
 from django.http import HttpResponse
@@ -38,7 +38,7 @@ ARG_BET_TYPE = "BetType"
 ARG_BET_RESULT = "BetResult"
 ARG_DICTIONARY = "Dictionary"
 ARG_BOOKMAKER_PICTURE = "BookmakerPicture"
-
+STANDARD_MARATHON_NO = 16
 # when we copy the date from other websites the dates come from other world regions
 # pending and settled
 
@@ -60,8 +60,9 @@ def confirm(request):
     # PinnacleSports
         PinnacleArray = printTabbedArrays(unprocessedString)
         if len(PinnacleArray) == 7:
+            print bookmaker.objects.get(pk=1).image.url
             betFields = {
-                ARG_BOOKMAKER_PICTURE: stripUrl(bookmakers.objects.get(pk=2).image.url),
+                ARG_BOOKMAKER_PICTURE: bookmaker.objects.get(pk=1).image.url,
                 ARG_EVENT_DESCRIPTION: "Fulham -vs- Stoke City",
                 ARG_EVENT_DATE: "10/5/2013 7:00",
                 ARG_EVENT_RESULT: "FT 1:0",
@@ -80,16 +81,30 @@ def confirm(request):
                                            sort_keys=True))
     tabArray = printTabbedArrays(unprocessedString)
     if len(tabArray) == 1:
-    # MarathonBet doesn't contain tabs
-        mc = MarathonClass()
-        betFields = mc.marathon(request=request, stringArray=tabArray)
-        if betFields is None:
+    # instantiate betHelp class
+        marathonArray = tabArray[0].split(" ")
+        if len(marathonArray) == STANDARD_MARATHON_NO:
+        # then parse the string into fields
+            betFields = {
+                ARG_BOOKMAKER_PICTURE: bookmaker.objects.get(pk=4).image.url,
+                ARG_EVENT_DESCRIPTION: "Fulham -vs- Stoke City",
+                ARG_EVENT_DATE: "10/5/2013 7:00",
+                ARG_EVENT_RESULT: "FT 1:0",
+                ARG_BET_DESCRIPTION: "Fulham",
+                ARG_BET_CODE: "327237505",
+                ARG_BET_ODDS: 2.640,
+                ARG_BET_AMOUNT: 10.00,
+                ARG_BET_DATE: "10/5/2013 6:48",
+                ARG_BET_TYPE: "Game - 1X2",
+                ARG_BET_RESULT: 5
+            }
+            return render_to_response('CPBet/confirm.html', betFields,
+                                      context_instance=RequestContext(request))
+        else:
             return HttpResponse(json.dumps({"Status": 400,
                                             "Error": "Not a full part Marathon Bet!"},
                                            sort_keys=True))
-        else:
-            return render_to_response('CPBet/confirm.html', betFields,
-                                      context_instance=RequestContext(request))
+
 
 
 def identifyPinnacle(unprocessedString):
@@ -122,9 +137,7 @@ def hasDate(string):
     return False
 
 
-def stripUrl(urlString):
-    urlArray = urlString.split("/")
-    return urlArray[len(urlArray)-1]
+
 
 
 # check if it has Pinnacle odds style

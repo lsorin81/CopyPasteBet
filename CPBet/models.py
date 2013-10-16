@@ -1,7 +1,13 @@
 from django.db import models
 
 
-class bets(models.Model):
+class bookmaker(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=25)
+    image = models.ImageField(upload_to="CPBet/static")
+
+
+class bet(models.Model):
 # event based
     event_description = models.CharField(max_length=100)
 # 'date published' = It is just verbose_name - something like human description or label for field.
@@ -10,7 +16,7 @@ class bets(models.Model):
 # bet based
     bet_description = models.CharField(max_length=100)
     bet_code = models.CharField(max_length=25)
-    bet_bookmaker = models.CharField(max_length=25)
+    bet_bookmaker = models.ForeignKey(bookmaker)
     bet_odds = models.FloatField()
     bet_amount = models.FloatField()
     bet_date = models.DateTimeField('bet accepted date')
@@ -24,7 +30,7 @@ class bets(models.Model):
         return self.event_description
 
 
-class english_premier_league_results(models.Model):
+class english_premier_league_result(models.Model):
     date = models.DateTimeField()
     home_team = models.CharField(max_length=25)
     away_team = models.CharField(max_length=25)
@@ -36,10 +42,7 @@ class unique_token_key(models.Model):
     key = models.CharField(max_length=5)
 
 
-class bookmakers(models.Model):
-    bookmaker_id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=25)
-    image = models.ImageField(upload_to="cpbet/static")
+
 
 
 

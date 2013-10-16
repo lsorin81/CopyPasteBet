@@ -1,9 +1,11 @@
+from CPBet.models import english_premier_league_result, bookmaker, unique_token_key
+
 __author__ = 'tippytip'
 from django.contrib import admin
-from .models import english_premier_league_results, bookmakers, unique_token_key
 
-admin.site.register(english_premier_league_results)
-admin.site.register(bookmakers)
+
+admin.site.register(english_premier_league_result)
+admin.site.register(bookmaker)
 admin.site.register(unique_token_key)
 
 # from django.contrib import admin

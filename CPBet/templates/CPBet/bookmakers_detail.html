@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+
+    <p> Id: {{ bookmakers.bookmaker_id }}
+    <p>Name: {{ bookmakers.name }}
+    {% load staticfiles %}
+        {% block content %}<p>Picture:<img src="{% static "marathon.jpg" %}" />{% endblock %}
+
+</body>
+</html>
